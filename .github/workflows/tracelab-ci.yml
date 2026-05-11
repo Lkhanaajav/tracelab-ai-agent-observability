@@ -1,0 +1,39 @@
+name: TraceLab CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  eval-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install backend dependencies
+        run: python -m pip install -r apps/api/requirements.txt
+
+      - name: Install frontend dependencies
+        run: npm --prefix apps/web install
+
+      - name: Build frontend
+        run: npm --prefix apps/web run build
+
+      - name: Start API
+        run: |
+          python -m uvicorn tracelab_api.main:app --host 127.0.0.1 --port 8000 --app-dir apps/api &
+          sleep 5
+
+      - name: Run agent eval quality gate
+        env:
+          PYTHONPATH: packages/evals
+        run: python -m tracelab_evals.run_eval --mode good --min-score 0.75 --max-failed 0

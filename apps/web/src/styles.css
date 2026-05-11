@@ -1,0 +1,413 @@
+:root {
+  color: #17201b;
+  background: #f6f7f4;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+main {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: end;
+  max-width: 1400px;
+  margin: 0 auto 24px;
+}
+
+.hero h1 {
+  max-width: 920px;
+  margin: 8px 0;
+  font-size: 42px;
+  line-height: 1.03;
+  letter-spacing: 0;
+}
+
+.hero p {
+  max-width: 760px;
+  margin: 0;
+  color: #5a625d;
+  font-size: 17px;
+}
+
+.heroCard {
+  border: 1px solid #d9dfd8;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(18, 30, 24, 0.08);
+}
+
+.heroCard span,
+.eyebrow {
+  color: #2a7c62;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.heroCard strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 18px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.mainColumn {
+  display: grid;
+  gap: 20px;
+}
+
+.panel {
+  border: 1px solid #d9dfd8;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 8px 22px rgba(18, 30, 24, 0.06);
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.panelHeader p,
+.expected {
+  margin: 4px 0 0;
+  color: #66706a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.runList {
+  display: grid;
+  gap: 10px;
+}
+
+.runRow {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid #dce2dc;
+  background: #fbfcfa;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.runRow:hover,
+.runRowActive {
+  border-color: #2a7c62;
+  background: #f0f8f4;
+}
+
+.runTitle {
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.runMeta,
+.timelineItem small {
+  color: #68736b;
+  font-size: 12px;
+}
+
+.runRight {
+  display: grid;
+  gap: 7px;
+  justify-items: end;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.pillPass {
+  background: #e4f6ee;
+  color: #116746;
+}
+
+.pillFail {
+  background: #fee9e6;
+  color: #a33325;
+}
+
+.detail {
+  display: grid;
+  gap: 18px;
+}
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.detailHeader h1 {
+  margin: 4px 0;
+  font-size: 28px;
+  letter-spacing: 0;
+}
+
+.detailHeader p {
+  margin: 0;
+  color: #5d6861;
+  line-height: 1.45;
+}
+
+.metricsGrid,
+.regressionGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.regressionGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #dbe1da;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.metricIcon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #edf3f1;
+  color: #236b58;
+}
+
+.metricLabel {
+  color: #68736b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.metricValue {
+  font-size: 20px;
+  font-weight: 850;
+}
+
+.metric-good .metricIcon {
+  background: #e2f6ed;
+  color: #116746;
+}
+
+.metric-bad .metricIcon {
+  background: #fee9e6;
+  color: #a33325;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: 16px;
+}
+
+.lower {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.timelineItem {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid #dce2dc;
+  background: #fbfcfa;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.timelineActive,
+.timelineItem:hover {
+  border-color: #2a7c62;
+  background: #f0f8f4;
+}
+
+.timelineIndex {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #17201b;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.timelineItem strong,
+.timelineItem small {
+  display: block;
+}
+
+.inspector h3,
+.panel h3 {
+  margin: 12px 0 8px;
+  font-size: 14px;
+}
+
+.jsonBlock {
+  max-height: 250px;
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #dce2dc;
+  border-radius: 8px;
+  background: #101815;
+  color: #d8efe6;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.evalList {
+  display: grid;
+  gap: 10px;
+}
+
+.evalRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #dce2dc;
+  border-radius: 8px;
+  background: #fbfcfa;
+}
+
+.evalRow p {
+  margin: 4px 0 0;
+  color: #66706a;
+  font-size: 13px;
+}
+
+.scoreBadge {
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-weight: 850;
+}
+
+.scorePass {
+  color: #116746;
+  background: #e4f6ee;
+}
+
+.scoreFail {
+  color: #a33325;
+  background: #fee9e6;
+}
+
+.finalOutput {
+  color: #233029;
+  background: #f8faf7;
+  border: 1px solid #dce2dc;
+  border-radius: 8px;
+  padding: 14px;
+  line-height: 1.5;
+}
+
+.error {
+  max-width: 1400px;
+  margin: 0 auto 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fee9e6;
+  color: #8c281c;
+  font-weight: 700;
+}
+
+.loading {
+  min-height: 220px;
+}
+
+@media (max-width: 1100px) {
+  .hero,
+  .layout,
+  .twoColumn {
+    grid-template-columns: 1fr;
+  }
+
+  .metricsGrid,
+  .regressionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  main {
+    padding: 16px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .metricsGrid,
+  .regressionGrid {
+    grid-template-columns: 1fr;
+  }
+}

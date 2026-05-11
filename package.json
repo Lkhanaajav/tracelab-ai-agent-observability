@@ -1,0 +1,10 @@
+{
+  "name": "tracelab",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "api": "python -m uvicorn tracelab_api.main:app --reload --host 127.0.0.1 --port 8000 --app-dir apps/api",
+    "web": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web run build"
+  }
+}

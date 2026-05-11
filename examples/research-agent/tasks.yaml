@@ -1,0 +1,16 @@
+tasks:
+  - id: resume-fit-001
+    name: Match portfolio project to AI observability role
+    input: >
+      Given a founding ML engineer job description, identify which portfolio
+      project best demonstrates agent reliability, evals, and production AI systems.
+    required_tools:
+      - extract_requirements
+      - rank_evidence
+    expected_facts:
+      - TraceLab
+      - observability
+      - tool-call correctness
+    max_latency_ms: 5000
+    max_cost_usd: 0.02
+    required_citations: 2
