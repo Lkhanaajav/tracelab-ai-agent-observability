@@ -177,6 +177,97 @@ def seed_db(force: bool = False) -> None:
                     "required_citations": 0,
                 },
             ),
+            (
+                "json-schema-004",
+                "Generate schema-valid structured output",
+                "Use the schema_validator tool and produce a JSON answer with required fields: 'title', 'score', 'reason'.",
+                "Agent must return valid JSON with all required fields present. schema_validator must be called explicitly.",
+                {
+                    "required_tools": ["schema_validator"],
+                    "expected_facts": ["title", "score", "reason"],
+                    "max_latency_ms": 2500,
+                    "max_cost_usd": 0.008,
+                    "required_citations": 0,
+                },
+            ),
+            (
+                "multi-tool-chain-005",
+                "Multi-step tool chaining",
+                "Chain extract_requirements → retrieve_documents → rank_evidence in the correct order.",
+                "Agent must call all three tools in the correct order. Skipping or reordering constitutes a failure.",
+                {
+                    "required_tools": ["extract_requirements", "retrieve_documents", "rank_evidence"],
+                    "expected_facts": ["correct order", "all tools used"],
+                    "max_latency_ms": 6000,
+                    "max_cost_usd": 0.025,
+                    "required_citations": 1,
+                },
+            ),
+            (
+                "citation-attribution-006",
+                "Fact-checked Q&A with source attribution",
+                "Answer a question and cite the document IDs of every fact you use.",
+                "All factual claims must trace to cited documents. Unattributed claims count as hallucinations.",
+                {
+                    "required_tools": ["retrieve_documents"],
+                    "expected_facts": ["grounded", "cited"],
+                    "max_latency_ms": 5000,
+                    "max_cost_usd": 0.018,
+                    "required_citations": 3,
+                },
+            ),
+            (
+                "cost-constraint-007",
+                "Complete task under strict cost budget",
+                "Summarize a long document corpus using the minimum number of tokens. Stay under $0.005 total.",
+                "Agent should prioritize efficient tool use and concise generation. Any budget overrun fails.",
+                {
+                    "required_tools": ["retrieve_documents"],
+                    "expected_facts": ["summary", "concise"],
+                    "max_latency_ms": 3000,
+                    "max_cost_usd": 0.005,
+                    "required_citations": 0,
+                },
+            ),
+            (
+                "instruction-format-008",
+                "Strict output format compliance",
+                "Return exactly three bullet points, each starting with '- ', summarizing key job requirements.",
+                "Output must contain exactly three lines, each prefixed with '- '. Any deviation is a format failure.",
+                {
+                    "required_tools": ["extract_requirements"],
+                    "expected_facts": ["three bullets", "- prefix"],
+                    "max_latency_ms": 3500,
+                    "max_cost_usd": 0.012,
+                    "required_citations": 0,
+                },
+            ),
+            (
+                "tool-error-recovery-009",
+                "Graceful tool error recovery",
+                "The retrieve_documents tool will fail on the first call. Detect the error and retry.",
+                "Agent must catch tool errors, log the failure event, and successfully retry.",
+                {
+                    "required_tools": ["retrieve_documents"],
+                    "expected_facts": ["retry", "error logged"],
+                    "max_latency_ms": 7000,
+                    "max_cost_usd": 0.022,
+                    "required_citations": 1,
+                },
+            ),
+            (
+                "latency-stress-010",
+                "Sub-2-second answer under load",
+                "Answer a simple factual question about the provided document in under 2000 ms.",
+                "Agent must produce a correct answer before the latency timer expires. Score below 0.7 fails.",
+                {
+                    "required_tools": ["retrieve_documents"],
+                    "expected_facts": ["fast answer"],
+                    "max_latency_ms": 2000,
+                    "max_cost_usd": 0.01,
+                    "required_citations": 1,
+                },
+            ),
         ]
 
         conn.executemany(
@@ -382,6 +473,117 @@ def seed_db(force: bool = False) -> None:
                 ("contains_required_citations", 1.0, True, "Two citations were present."),
                 ("groundedness", 0.91, True, "Answer stays inside retrieved document claims."),
                 ("latency_under_budget", 1.0, True, "2875 ms is under 4500 ms."),
+            ],
+        )
+
+        add_run(
+            "run-schema-004",
+            "json-schema-004",
+            "passed",
+            1820,
+            940,
+            0.006,
+            '{"title": "TraceLab evaluation platform", "score": 0.94, "reason": "Demonstrates tool-call correctness, latency, and cost evals."}',
+            [
+                {
+                    "event_type": "tool_call",
+                    "name": "schema_validator",
+                    "input_json": {"fields": ["title", "score", "reason"]},
+                    "output_json": {"valid": True, "missing_fields": []},
+                    "latency_ms": 190,
+                    "token_count": 0,
+                },
+                {
+                    "event_type": "model_output",
+                    "name": "final_answer",
+                    "input_json": {},
+                    "output_json": {"title": "TraceLab evaluation platform", "score": 0.94, "reason": "Demonstrates tool-call correctness"},
+                    "latency_ms": 1630,
+                    "token_count": 940,
+                },
+            ],
+            [
+                ("json_schema_valid", 1.0, True, "All required fields present and types correct."),
+                ("required_tool_used", 1.0, True, "schema_validator was explicitly called."),
+                ("latency_under_budget", 1.0, True, "1820 ms is under 2500 ms."),
+                ("cost_under_budget", 1.0, True, "$0.006 is under the $0.008 budget."),
+            ],
+        )
+
+        add_run(
+            "run-chain-bad-005",
+            "multi-tool-chain-005",
+            "failed",
+            4210,
+            2340,
+            0.019,
+            "Retrieved documents: [doc-b]. Top project: ApplyPilot. Confidence: 0.55.",
+            [
+                {
+                    "event_type": "tool_call",
+                    "name": "retrieve_documents",
+                    "input_json": {"query": "ML engineer skills"},
+                    "output_json": {"documents": ["doc-b"]},
+                    "latency_ms": 430,
+                    "token_count": 0,
+                },
+                {
+                    "event_type": "tool_call",
+                    "name": "rank_evidence",
+                    "input_json": {"projects": ["ApplyPilot"]},
+                    "output_json": {"top_project": "ApplyPilot", "confidence": 0.55},
+                    "latency_ms": 380,
+                    "token_count": 0,
+                },
+                {
+                    "event_type": "model_output",
+                    "name": "final_answer",
+                    "input_json": {},
+                    "output_json": {"citations": []},
+                    "latency_ms": 3400,
+                    "token_count": 2340,
+                },
+            ],
+            [
+                ("required_tool_used", 0.67, False, "extract_requirements was skipped — tool chain order violated."),
+                ("answer_quality", 0.48, False, "Answer lacks requirement extraction step, leading to poor project match."),
+                ("groundedness", 0.31, False, "No citations to support project recommendation."),
+                ("latency_under_budget", 1.0, True, "4210 ms is under 6000 ms."),
+                ("cost_under_budget", 1.0, True, "$0.019 is under the $0.025 budget."),
+            ],
+        )
+
+        add_run(
+            "run-citation-006",
+            "citation-attribution-006",
+            "passed",
+            3640,
+            2010,
+            0.014,
+            "Agent reliability depends on deterministic evals [doc-x], reproducible tool schemas [doc-y], and latency budgets [doc-z].",
+            [
+                {
+                    "event_type": "tool_call",
+                    "name": "retrieve_documents",
+                    "input_json": {"query": "agent reliability evaluation methods"},
+                    "output_json": {"documents": ["doc-x", "doc-y", "doc-z"]},
+                    "latency_ms": 510,
+                    "token_count": 0,
+                },
+                {
+                    "event_type": "model_output",
+                    "name": "final_answer",
+                    "input_json": {},
+                    "output_json": {"citations": ["doc-x", "doc-y", "doc-z"]},
+                    "latency_ms": 3130,
+                    "token_count": 2010,
+                },
+            ],
+            [
+                ("contains_required_citations", 1.0, True, "Three distinct citations present."),
+                ("groundedness", 0.95, True, "Every claim traces to a retrieved document."),
+                ("latency_under_budget", 1.0, True, "3640 ms is under 5000 ms."),
+                ("cost_under_budget", 1.0, True, "$0.014 is under the $0.018 budget."),
             ],
         )
 

@@ -12,6 +12,7 @@ import {
   GitCompare,
   ListChecks,
   PlayCircle,
+  Wrench,
   XCircle,
 } from "lucide-react";
 import "./styles.css";
@@ -59,6 +60,20 @@ type RunDetail = Run & {
   eval_config: Record<string, unknown>;
   events: TraceEvent[];
   evals: EvalResult[];
+};
+
+type Task = {
+  id: string;
+  name: string;
+  input: string;
+  expected_behavior: string;
+  eval_config: {
+    required_tools?: string[];
+    expected_facts?: string[];
+    max_latency_ms?: number;
+    max_cost_usd?: number;
+    required_citations?: number;
+  };
 };
 
 type Regression = {
@@ -286,6 +301,57 @@ function setEventIdFromEvent(setEventId: (id: string) => void) {
   return (event: TraceEvent) => setEventId(event.id);
 }
 
+function TasksView() {
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    fetch(`${API}/tasks`)
+      .then((r) => r.json())
+      .then(setTasks)
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div className="tasksGrid">
+      {tasks.map((task) => (
+        <div className="taskCard panel" key={task.id}>
+          <div className="taskCardHeader">
+            <div className="eyebrow">{task.id}</div>
+            <h3>{task.name}</h3>
+          </div>
+          <p className="taskInput">{task.input}</p>
+          <p className="taskExpected">{task.expected_behavior}</p>
+          <div className="taskCriteria">
+            {task.eval_config.required_tools?.map((tool) => (
+              <span className="criteriaTag criteriaTagTool" key={tool}>
+                <Wrench size={11} />
+                {tool}
+              </span>
+            ))}
+            {task.eval_config.max_latency_ms != null && (
+              <span className="criteriaTag">
+                <Clock3 size={11} />
+                {task.eval_config.max_latency_ms} ms
+              </span>
+            )}
+            {task.eval_config.max_cost_usd != null && (
+              <span className="criteriaTag">
+                <CircleDollarSign size={11} />${task.eval_config.max_cost_usd}
+              </span>
+            )}
+            {task.eval_config.required_citations != null &&
+              task.eval_config.required_citations > 0 && (
+                <span className="criteriaTag">
+                  {task.eval_config.required_citations} citations
+                </span>
+              )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function RegressionPanel({ regression }: { regression?: Regression }) {
   if (!regression) {
     return null;
@@ -326,6 +392,7 @@ function RegressionPanel({ regression }: { regression?: Regression }) {
 }
 
 function App() {
+  const [tab, setTab] = useState<"runs" | "tasks">("runs");
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRunId, setSelectedRunId] = useState<string>();
   const [detail, setDetail] = useState<RunDetail>();
@@ -379,17 +446,40 @@ function App() {
 
       {error ? <div className="error">{error}</div> : null}
 
-      <div className="layout">
-        <RunsTable
-          runs={runs}
-          selected={selectedRun?.id}
-          onSelect={(run) => setSelectedRunId(run.id)}
-        />
-        <div className="mainColumn">
-          {detail ? <RunDetailView detail={detail} /> : <div className="panel loading">Loading run detail...</div>}
-          <RegressionPanel regression={regression} />
+      <nav className="tabNav">
+        <button
+          className={`tabBtn ${tab === "runs" ? "tabBtnActive" : ""}`}
+          onClick={() => setTab("runs")}
+        >
+          <PlayCircle size={16} />
+          Runs
+        </button>
+        <button
+          className={`tabBtn ${tab === "tasks" ? "tabBtnActive" : ""}`}
+          onClick={() => setTab("tasks")}
+        >
+          <ListChecks size={16} />
+          Tasks
+        </button>
+      </nav>
+
+      {tab === "runs" ? (
+        <div className="layout">
+          <RunsTable
+            runs={runs}
+            selected={selectedRun?.id}
+            onSelect={(run) => setSelectedRunId(run.id)}
+          />
+          <div className="mainColumn">
+            {detail ? <RunDetailView detail={detail} /> : <div className="panel loading">Loading run detail...</div>}
+            <RegressionPanel regression={regression} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="tasksContainer">
+          <TasksView />
+        </div>
+      )}
     </main>
   );
 }

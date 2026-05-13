@@ -384,6 +384,103 @@ main {
   min-height: 220px;
 }
 
+.tabNav {
+  display: flex;
+  gap: 8px;
+  max-width: 1400px;
+  margin: 0 auto 20px;
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border: 1px solid #d9dfd8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #68736b;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabBtn:hover {
+  border-color: #2a7c62;
+  color: #2a7c62;
+}
+
+.tabBtnActive {
+  background: #17201b;
+  border-color: #17201b;
+  color: #ffffff;
+}
+
+.tabBtnActive:hover {
+  border-color: #17201b;
+  color: #ffffff;
+}
+
+.tasksContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tasksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.taskCard {
+  display: grid;
+  gap: 10px;
+}
+
+.taskCardHeader h3 {
+  margin: 4px 0 0;
+  font-size: 16px;
+}
+
+.taskInput {
+  margin: 0;
+  font-size: 14px;
+  color: #233029;
+  line-height: 1.45;
+}
+
+.taskExpected {
+  margin: 0;
+  font-size: 13px;
+  color: #66706a;
+  line-height: 1.4;
+}
+
+.taskCriteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.criteriaTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #edf3f1;
+  color: #2a7c62;
+  border: 1px solid #cde4da;
+}
+
+.criteriaTagTool {
+  background: #f0f0ff;
+  color: #4545b8;
+  border-color: #c9c9ef;
+}
+
 @media (max-width: 1100px) {
   .hero,
   .layout,
