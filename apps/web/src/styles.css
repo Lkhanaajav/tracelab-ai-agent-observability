@@ -481,6 +481,76 @@ main {
   border-color: #c9c9ef;
 }
 
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e4eae2;
+  flex-wrap: wrap;
+}
+
+.filterChip {
+  padding: 3px 10px;
+  border: 1px solid #d9dfd8;
+  border-radius: 999px;
+  background: #f6f7f4;
+  color: #5a625d;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.filterChip:hover { border-color: #2a7c62; color: #2a7c62; }
+
+.filterChipActive {
+  background: #17201b;
+  border-color: #17201b;
+  color: #ffffff;
+}
+
+.filterChipActive:hover { border-color: #17201b; color: #fff; }
+
+.sortSelect {
+  padding: 4px 8px;
+  border: 1px solid #d9dfd8;
+  border-radius: 6px;
+  background: #f6f7f4;
+  color: #5a625d;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.countBadge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.countPass { background: #e4f6ee; color: #116746; }
+.countFail { background: #fee9e6; color: #a33325; }
+
+.iconActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d9dfd8;
+  border-radius: 6px;
+  background: #f6f7f4;
+  color: #5a625d;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.iconActionBtn:hover { border-color: #2a7c62; color: #2a7c62; }
+
 @media (max-width: 1100px) {
   .hero,
   .layout,

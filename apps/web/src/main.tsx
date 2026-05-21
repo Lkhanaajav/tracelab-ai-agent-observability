@@ -12,6 +12,9 @@ import {
   GitCompare,
   ListChecks,
   PlayCircle,
+  RefreshCw,
+  SlidersHorizontal,
+  TrendingUp,
   Wrench,
   XCircle,
 } from "lucide-react";
@@ -128,26 +131,96 @@ function MetricCard({
   );
 }
 
+function ScoreTrend({ runs }: { runs: Run[] }) {
+  if (runs.length < 2) return null;
+  const W = 180, H = 34, PAD = 4;
+  const scores = runs.map((r) => r.average_score);
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  const range = max - min || 0.01;
+  const pts = scores
+    .map((s, i) => {
+      const x = PAD + (i / (scores.length - 1)) * (W - PAD * 2);
+      const y = H - PAD - ((s - min) / range) * (H - PAD * 2);
+      return `${x},${y}`;
+    })
+    .join(" ");
+  return (
+    <svg width={W} height={H} style={{ overflow: "visible" }}>
+      <polyline points={pts} fill="none" stroke="#2a7c62" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {scores.map((s, i) => {
+        const x = PAD + (i / (scores.length - 1)) * (W - PAD * 2);
+        const y = H - PAD - ((s - min) / range) * (H - PAD * 2);
+        return <circle key={i} cx={x} cy={y} r="3" fill="#2a7c62" />;
+      })}
+    </svg>
+  );
+}
+
 function RunsTable({
   runs,
   selected,
   onSelect,
+  onRefresh,
 }: {
   runs: Run[];
   selected?: string;
   onSelect: (run: Run) => void;
+  onRefresh: () => void;
 }) {
+  const [filter, setFilter] = useState<"all" | "passed" | "failed">("all");
+  const [sortBy, setSortBy] = useState<"default" | "score" | "latency" | "cost">("default");
+
+  const passCount = runs.filter((r) => r.status === "passed").length;
+  const failCount = runs.filter((r) => r.status === "failed").length;
+
+  const visible = useMemo(() => {
+    let list = filter === "all" ? runs : runs.filter((r) => r.status === filter);
+    if (sortBy === "score") list = [...list].sort((a, b) => b.average_score - a.average_score);
+    else if (sortBy === "latency") list = [...list].sort((a, b) => a.total_latency_ms - b.total_latency_ms);
+    else if (sortBy === "cost") list = [...list].sort((a, b) => a.estimated_cost_usd - b.estimated_cost_usd);
+    return list;
+  }, [runs, filter, sortBy]);
+
   return (
     <section className="panel runsPanel">
       <div className="panelHeader">
         <div>
           <h2>Agent Runs</h2>
-          <p>Recent traces with eval scores, latency, and cost.</p>
+          <p>
+            <span className="countBadge countPass">{passCount} passed</span>{" "}
+            <span className="countBadge countFail">{failCount} failed</span>
+          </p>
         </div>
-        <PlayCircle size={22} />
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <ScoreTrend runs={runs} />
+          <button className="iconActionBtn" onClick={onRefresh} title="Refresh">
+            <RefreshCw size={16} />
+          </button>
+        </div>
       </div>
+
+      <div className="filterBar">
+        <SlidersHorizontal size={14} style={{ color: "#66706a" }} />
+        {(["all", "passed", "failed"] as const).map((f) => (
+          <button key={f} className={`filterChip ${filter === f ? "filterChipActive" : ""}`} onClick={() => setFilter(f)}>
+            {f}
+          </button>
+        ))}
+        <select className="sortSelect" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+          <option value="default">Default order</option>
+          <option value="score">Sort: Score ↓</option>
+          <option value="latency">Sort: Latency ↑</option>
+          <option value="cost">Sort: Cost ↑</option>
+        </select>
+        <TrendingUp size={14} style={{ color: "#66706a", marginLeft: "auto" }} />
+      </div>
+
       <div className="runList">
-        {runs.map((run) => (
+        {visible.length === 0 && (
+          <p style={{ padding: "16px", color: "#66706a", fontSize: "13px" }}>No runs match the filter.</p>
+        )}
+        {visible.map((run) => (
           <button
             className={`runRow ${selected === run.id ? "runRowActive" : ""}`}
             key={run.id}
@@ -398,16 +471,19 @@ function App() {
   const [detail, setDetail] = useState<RunDetail>();
   const [regression, setRegression] = useState<Regression>();
   const [error, setError] = useState<string>();
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
+  function loadRuns() {
     fetch(`${API}/runs`)
       .then((response) => response.json())
       .then((data: Run[]) => {
         setRuns(data);
-        setSelectedRunId(data[0]?.id);
+        setSelectedRunId((prev) => prev ?? data[0]?.id);
       })
       .catch(() => setError("API is not reachable. Start the FastAPI server on port 8000."));
-  }, []);
+  }
+
+  useEffect(() => { loadRuns(); }, [refreshKey]);
 
   useEffect(() => {
     if (!selectedRunId) return;
@@ -469,6 +545,7 @@ function App() {
             runs={runs}
             selected={selectedRun?.id}
             onSelect={(run) => setSelectedRunId(run.id)}
+            onRefresh={() => setRefreshKey((k) => k + 1)}
           />
           <div className="mainColumn">
             {detail ? <RunDetailView detail={detail} /> : <div className="panel loading">Loading run detail...</div>}
