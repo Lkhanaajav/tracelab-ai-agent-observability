@@ -2,6 +2,8 @@
 
 AI agent evaluation and observability dashboard.
 
+![TraceLab dashboard: agent runs, trace timeline, and event inspector](docs/tracelab-dashboard.png)
+
 TraceLab is a portfolio-grade developer tool for inspecting AI agent runs. It captures model prompts, tool calls, observations, final outputs, latency, token usage, estimated cost, and eval results so agent failures are easy to debug.
 
 ## Why This Exists
